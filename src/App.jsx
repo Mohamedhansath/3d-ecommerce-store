@@ -42,7 +42,7 @@ export default function App() {
       frame = requestAnimationFrame(() => {
         const hero = document.querySelector(".hero");
         if (!hero) return;
-        const range = Math.max(1, hero.offsetHeight - window.innerHeight);
+        const range = Math.max(1, hero.offsetHeight);
         setProgress(Math.min(1, Math.max(0, -hero.getBoundingClientRect().top / range)));
       });
     };
