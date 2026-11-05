@@ -1,6 +1,6 @@
 import { Component, Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Center, ContactShadows, Environment, useGLTF } from "@react-three/drei";
+import { Center, ContactShadows, Environment, Html, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 const SHOE_MODEL_URL = "https://grab3d.com/dl/sneaker/sneaker.glb";
@@ -75,7 +75,7 @@ function Scene({ progress }) {
     <ambientLight intensity={1.15}/>
     <directionalLight position={[4,6,5]} intensity={2.35} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024}/>
     <spotLight position={[-4,3,2]} intensity={1.15} angle={0.48} penumbra={0.8} color="#d9a78e"/>
-    <Suspense fallback={null}><RealShoe progress={progress}/><Environment preset="studio"/></Suspense>
+    <Suspense fallback={<Html center><div className="scene-loading">Loading 3D sneaker…</div></Html>}><RealShoe progress={progress}/><Environment preset="studio"/></Suspense>
     <ScrollCamera progress={progress}/>
     <ContactShadows position={[0,-0.72,0]} opacity={0.36} scale={5.5} blur={2.8} far={2.5}/>
   </Canvas>;
