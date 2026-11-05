@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { ContactShadows, Environment, Float, Html, OrbitControls } from "@react-three/drei";
+import { lazy, Suspense, useEffect, useState } from "react";
+const HeroScene = lazy(() => import("./HeroScene.jsx"));
 import { ArrowDown, ArrowRight, ArrowUpRight, Heart, Menu, Minus, Plus, ShoppingBag, X } from "lucide-react";
-import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -14,38 +12,6 @@ const products = [
   { id: "03", name: "Cloud Object", category: "Accessories", price: 96, tone: "#d5d0c7", tag: "LIMITED", image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=900&q=85" },
   { id: "04", name: "Everyday Carry", category: "Accessories", price: 145, tone: "#b9b1a5", tag: "POPULAR", image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=900&q=85" }
 ];
-
-function Sneaker() {
-  const group = useRef();
-  useFrame((state, delta) => {
-    if (group.current) {
-      group.current.rotation.y += delta * 0.12;
-      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, 0.08 + Math.sin(state.clock.elapsedTime * 0.5) * 0.035, 0.03);
-    }
-  });
-  return <Float speed={1.1} rotationIntensity={0.12} floatIntensity={0.35}>
-    <group ref={group} rotation={[0.05, -0.35, -0.12]} scale={1.15}>
-      <mesh castShadow position={[0, 0, 0]}><capsuleGeometry args={[0.48, 1.5, 8, 20]} /><meshStandardMaterial color="#e7e2d8" roughness={0.42} /></mesh>
-      <mesh castShadow position={[0, -0.39, 0.02]} scale={[1.02, 0.16, 1.02]}><capsuleGeometry args={[0.48, 1.5, 8, 20]} /><meshStandardMaterial color="#282725" roughness={0.7} /></mesh>
-      <mesh castShadow position={[0, 0.34, 0.18]} rotation={[0, 0, 0.15]} scale={[0.5, 0.24, 0.12]}><boxGeometry args={[1, 1, 1]} /><meshStandardMaterial color="#b7a18b" roughness={0.55} /></mesh>
-      {[0,1,2,3].map((v)=><mesh key={v} position={[-0.18 + v*0.12, 0.24-v*0.08, 0.47]} rotation={[0,0,-0.28]}><boxGeometry args={[0.42,0.025,0.025]} /><meshStandardMaterial color="#8d8173" /></mesh>)}
-      <mesh position={[0,0.05,-0.43]} rotation={[0,0,Math.PI/2]}><torusGeometry args={[0.22,0.045,8,32,Math.PI]} /><meshStandardMaterial color="#b6a18b" /></mesh>
-    </group>
-  </Float>;
-}
-
-function HeroScene({ progress }) {
-  const scene = useRef();
-  useFrame(() => { if (scene.current) { scene.current.rotation.y = progress * 1.05; scene.current.position.y = -progress * 0.28; } });
-  return <Canvas shadows dpr={[1,1.6]} camera={{ position: [3.6, 2.2, 5.2], fov: 36 }}>
-    <ambientLight intensity={1.25} />
-    <directionalLight position={[4,6,5]} intensity={2.2} castShadow />
-    <group ref={scene}><Sneaker /></group>
-    <ContactShadows position={[0,-1.25,0]} opacity={0.35} scale={5} blur={2.5} far={3} />
-    <Environment preset="studio" />
-    <OrbitControls enablePan={false} enableZoom={false} enableRotate={false} />
-  </Canvas>;
-}
 
 export default function App() {
   const [cart, setCart] = useState(() => { try { return JSON.parse(localStorage.getItem("forme-cart-v1") || "[]"); } catch { return []; } });
@@ -111,7 +77,7 @@ export default function App() {
 
     <section className="hero" id="home">
       <div className="hero-copy"><p className="eyebrow"><i/> OBJECTS IN MOTION — VOL. 01</p><h1>Made to<br/><em>move</em> you.</h1><p className="hero-sub">Thoughtful objects. Considered form.<br/>A new perspective on everyday essentials.</p><a className="round-link" href="#collection">Explore collection <ArrowUpRight size={17}/></a></div>
-      <div className="hero-visual"><div className="model-label">FORME / 001<br/><span>THE AERO RUNNER</span></div><HeroScene progress={progress}/><div className="model-caption">SCROLL TO EXPLORE <ArrowDown size={13}/></div></div>
+      <div className="hero-visual"><div className="model-label">FORME / 001<br/><span>THE AERO RUNNER</span></div><Suspense fallback={<div className="scene-loading">Preparing 3D experience…</div>}><HeroScene progress={progress}/></Suspense><div className="model-caption">SCROLL TO EXPLORE <ArrowDown size={13}/></div></div>
       <div className="hero-index">01 — 04</div>
     </section>
 
