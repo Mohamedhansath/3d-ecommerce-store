@@ -3,6 +3,10 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { ContactShadows, Environment, Float, Html, OrbitControls } from "@react-three/drei";
 import { ArrowDown, ArrowRight, ArrowUpRight, Heart, Menu, Minus, Plus, ShoppingBag, X } from "lucide-react";
 import * as THREE from "three";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const products = [
   { id: "01", name: "Aero Runner", category: "Footwear", price: 189, tone: "#d7d2c8", tag: "BESTSELLER", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&q=85" },
@@ -56,8 +60,40 @@ export default function App() {
   useEffect(() => { localStorage.setItem("forme-cart-v1", JSON.stringify(cart)); }, [cart]);
   useEffect(() => { localStorage.setItem("forme-wishlist-v1", JSON.stringify(liked)); }, [liked]);
   useEffect(() => {
-    const update = () => { const max = document.documentElement.scrollHeight - innerHeight; setProgress(max > 0 ? scrollY / max : 0); };
-    addEventListener("scroll", update, { passive: true }); update(); return () => removeEventListener("scroll", update);
+    const mm = gsap.matchMedia();
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: ".hero",
+        start: "top top",
+        end: "bottom top",
+        scrub: 0.8,
+        onUpdate: (self) => setProgress(self.progress),
+      });
+      gsap.fromTo(".hero-copy > *", { y: 24, opacity: 0 }, {
+        y: 0, opacity: 1, duration: 0.85, stagger: 0.11, ease: "power3.out", delay: 0.15,
+        clearProps: "transform",
+      });
+      gsap.utils.toArray(".product-card").forEach((card, index) => {
+        gsap.fromTo(card, { y: 38, opacity: 0 }, {
+          y: 0, opacity: 1, duration: 0.75, ease: "power2.out",
+          scrollTrigger: { trigger: card, start: "top 88%", once: true },
+          delay: (index % 2) * 0.08,
+        });
+      });
+      gsap.fromTo(".story-image img", { scale: 1.12 }, {
+        scale: 1, ease: "none",
+        scrollTrigger: { trigger: ".story", start: "top bottom", end: "bottom top", scrub: 1 },
+      });
+      gsap.fromTo(".story-copy", { x: 36, opacity: 0 }, {
+        x: 0, opacity: 1, duration: 0.9, ease: "power3.out",
+        scrollTrigger: { trigger: ".story", start: "top 72%", once: true },
+      });
+      gsap.fromTo(".journal-row > *", { y: 25, opacity: 0 }, {
+        y: 0, opacity: 1, duration: 0.7, stagger: 0.12, ease: "power2.out",
+        scrollTrigger: { trigger: ".journal", start: "top 78%", once: true },
+      });
+    });
+    return () => { ctx.revert(); mm.revert(); ScrollTrigger.getAll().forEach((trigger) => trigger.kill()); };
   }, []);
   useEffect(() => { if (!notice) return; const id = setTimeout(() => setNotice(""), 2200); return () => clearTimeout(id); }, [notice]);
 
